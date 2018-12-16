@@ -1,6 +1,8 @@
 Some code for a Raspberry Pi Zero W to make it act as a Bluetooth HID proxy.
 
 >>> TODO <<< documentation and examples
+- FnLk does not work on bt keyboard. probably because we're only proxying bt -> raspberry pi -> usb host and nothing the other direction
+- middle mouse and drag is weird... seems to trigger a full middle click which is annoying on the web. no idea what to investigate there
 
 ```
 # Instructions from <https://www.raspberrypi.org/documentation/installation/installing-images/linux.md>.
