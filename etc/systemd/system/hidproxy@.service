@@ -1,0 +1,6 @@
+[Unit]
+Description=TODO TODO
+StopWhenUnneeded=yes
+[Service]
+ExecStart=/bin/hidproxy %i
+Environment=PYTHONUNBUFFERED=1
