@@ -1,0 +1,5 @@
+[basic]
+good-names=f
+
+[MESSAGES CONTROL]
+disable=ungrouped-imports

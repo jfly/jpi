@@ -1,33 +1,16 @@
 Some code for a Raspberry Pi Zero W to make it act as a Bluetooth HID proxy.
 
+TODO - disable keyboard on raspberry pi somehow? this seems like a good way to lock yourself out of the device...
+
 >>> TODO <<< documentation and examples
 - FnLk does not work on bt keyboard. probably because we're only proxying bt -> raspberry pi -> usb host and nothing the other direction
 - middle mouse and drag is weird... seems to trigger a full middle click which is annoying on the web. no idea what to investigate there
 
 ```
-# Instructions from <https://www.raspberrypi.org/documentation/installation/installing-images/linux.md>.
-$ wget https://downloads.raspberrypi.org/raspbian_lite_latest -o raspbian_lite_latest.zip
-$ unzip -p raspbian_lite_latest.zip | sudo dd bs=4M of=/dev/sdX status=progress conv=fsync
-
-# Headless setup (https://www.raspberrypi.org/forums/viewtopic.php?t=191252)
-$ sudo mount /dev/sda1 /mnt
-$ sudo touch /mnt/ssh
-$ echo "country=us
-update_config=1
-ctrl_interface=/var/run/wpa_supplicant
-
-network={
- scan_ssid=1
- ssid=\"dagron\"
- psk=\"boobik's rube\"
-}" | sudo tee /mnt/wpa_supplicant.conf
-$ sudo umount /mnt
-
-# Now boot up the pi!
+$ ./do sdcard
+# Now plug in the sd card and boot up the pi!
 $ ssh-copy-id pi@raspberrypi
-$ ssh pi@raspberrypi "sudo apt-get update && sudo apt-get upgrade"
-$ ssh pi@raspberrypi passwd # TODO - maybe remove password instead?
-$ scp bootstrap-pi.sh pi@raspberrypi:/tmp && ssh pi@raspberrypi /tmp/bootstrap-pi.sh
+$ ./do bootstrap
 ```
 
 
@@ -106,7 +89,7 @@ Some info about given hidraw device:
 
 I think the `hidp` kernel module is what exposes bt hid devices as virtual hid
 devices? Not sure how `uhid` fits into this... It *seems* like you should be
-able to issue an ioctl to get infor
+able to issue an ioctl to get information
 about the connections (see
 https://github.com/torvalds/linux/blob/master/net/bluetooth/hidp/core.c), but I
 can't find anyone online doing that, and I'm too scared/lazy to craft my own query.
@@ -159,3 +142,16 @@ $ udevadm monitor --subsystem-match=hid
 $ sudo udevadm control --reload
 $ sudo systemctl daemon-reload
 $ systemctl status 'hidproxy*'
+
+
+## Setting up ECM network (rndirs modem?)
+
+Following instructions on http://irq5.io/2016/12/22/raspberry-pi-zero-as-multiple-usb-gadgets/:
+
+```
+$ cd /sys/kernel/config/usb_gadget/isticktoit
+root@raspberrypi:/sys/kernel/config/usb_gadget/isticktoit# mkdir -p functions/rndis.usb3
+root@raspberrypi:/sys/kernel/config/usb_gadget/isticktoit# ln -s functions/rndis.usb3 configs/c.1/
+/root@raspberrypi:/sys/kernel/config/usb_gadget/isticktoit# echo > UDC
+root@raspberrypi:/sys/kernel/config/usb_gadget/isticktoit# ls /sys/class/udc/ > UDC
+```

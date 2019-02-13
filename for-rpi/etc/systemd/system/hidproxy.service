@@ -1,0 +1,11 @@
+[Unit]
+Description=hidproxy gadget
+After=systemd-modules-load.service
+ 
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/hidproxy-on-boot
+ 
+[Install]
+WantedBy=sysinit.target

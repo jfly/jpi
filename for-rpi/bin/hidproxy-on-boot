@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+DEVICE_NAME=hidproxy
+
+cd /sys/kernel/config/usb_gadget/
+
+function maybe_cleanup() {
+    # Copied from https://github.com/larsks/systemd-usb-gadget/blob/master/remove-gadget.sh
+    if [ ! -e $DEVICE_NAME ]; then
+        return 0
+    fi
+
+    cd $DEVICE_NAME
+
+    echo '' > UDC
+
+    echo "Removing strings from configurations"
+    for dir in configs/*/strings/*; do
+        [ -d $dir ] && rmdir $dir
+    done
+
+    echo "Removing functions from configurations"
+    for func in configs/*.*/*.*; do
+        [ -e $func ] && rm $func
+    done
+
+    echo "Removing configurations"
+    for conf in configs/*; do
+        [ -d $conf ] && rmdir $conf
+    done
+
+    echo "Removing functions"
+    for func in functions/*.*; do
+        [ -d $func ] && rmdir $func
+    done
+
+    echo "Removing strings"
+    for str in strings/*; do
+        [ -d $str ] && rmdir $str
+    done
+
+    echo "Removing gadget"
+    cd ..
+    rmdir $DEVICE_NAME
+}
+
+maybe_cleanup
+
+mkdir -p $DEVICE_NAME
+cd $DEVICE_NAME
+echo 0x1d6b > idVendor # Linux Foundation
+echo 0x0104 > idProduct # Multifunction Composite Gadget
+echo 0x0100 > bcdDevice # v1.0.0
+echo 0x0200 > bcdUSB # USB2
+mkdir -p strings/0x409
+echo "fedcba9876543210" > strings/0x409/serialnumber
+echo "https://github.com/jfly/hidproxy" > strings/0x409/manufacturer
+echo "hidproxy usb device" > strings/0x409/product
+mkdir -p configs/c.1/strings/0x409
+echo "Config 1: ECM network" > configs/c.1/strings/0x409/configuration
+echo 250 > configs/c.1/MaxPower
+
+# Setting up ECM network (rndirs modem?)
+# Copied instructions from http://irq5.io/2016/12/22/raspberry-pi-zero-as-multiple-usb-gadgets/
+mkdir -p functions/rndis.usb0
+ln -s functions/rndis.usb0 configs/c.1/
+ls /sys/class/udc/ > UDC
