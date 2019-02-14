@@ -15,27 +15,19 @@ def main():
 
     print("Handling new HID device: {}.".format(kernel_name))
     device_info = get_device_info(kernel_name)
+    print(device_info.uevent)
 
     gadget_info = create_gadget_function(device_info)
 
     proxy_forever(device_info, gadget_info)
 
-exit_funcs = []
-def exit_gracefully(_signum, _frame):
-    print("Exiting... ", end="")
-    for func in exit_funcs:
-        func()
-    print("Goodbye!")
-    os._exit(0)
-
-DeviceInfo = namedtuple('DeviceInfo', ['description', 'report_descriptor', 'hidraw_path'])
+DeviceInfo = namedtuple('DeviceInfo', ['uevent', 'report_descriptor', 'hidraw_path'])
 
 def get_device_info(kernel_name) -> DeviceInfo:
     device_path = join("/sys/bus/hid/devices/", kernel_name)
 
     with open(join(device_path, "uevent")) as f:
-        description = f.read()
-        print(description)
+        uevent = Uevent.parse(f.read())
 
     with open(join(device_path, "report_descriptor"), 'rb') as f:
         report_descriptor = f.read()
@@ -61,10 +53,20 @@ def get_device_info(kernel_name) -> DeviceInfo:
     hidraw_path = join("/dev/char/", char_addr)
 
     return DeviceInfo(
-        description=description,
+        uevent=uevent,
         report_descriptor=report_descriptor,
         hidraw_path=hidraw_path,
     )
+
+class Uevent(namedtuple('Uevent', ['driver', 'hid_id', 'hid_name', 'hid_phys', 'hid_uniq', 'modalias'])):
+    @classmethod
+    def parse(cls, data):
+        kwargs = {}
+        for line in data.split("\n"):
+            if line:
+                key, value = line.split("=", 1)
+                kwargs[key.lower()] = value
+        return cls(**kwargs)
 
 GadgetInfo = namedtuple('GadgetInfo', ['hidg_path'])
 
@@ -153,10 +155,19 @@ def proxy_forever(device_info, gadget_info):
     print("Proxying forever from {} to {}".format(device_info.hidraw_path, gadget_info.hidg_path))
     with open(gadget_info.hidg_path, 'rb+') as out_f:
         in_fd = os.open(device_info.hidraw_path, os.O_RDWR)
+        maybe_fixup_device(device_info, in_fd)
         while True:
             buf = os.read(in_fd, 9) # TODO: I'm not sure what buffer size to actually put here...
             out_f.write(buf)
             out_f.flush()
+
+def maybe_fixup_device(device_info, in_fd):
+    """Some devices need special initialization. This is the place to do that."""
+
+    # Turn on FnLk for ThinkPad Bluetooth Keyboard.
+    # Trick copied from https://github.com/lentinj/tp-compact-keyboard/blob/e8fff5088a3e1ef22e9d6b25d1b3f211db58b555/tp-compact-keyboard#L58.
+    if device_info.uevent.hid_name == "ThinkPad Compact Bluetooth Keyboard with TrackPoint":
+        os.write(in_fd, b"\x18\x05\x01")
 
 def get_only_element(arr):
     arr = list(arr)
@@ -182,6 +193,14 @@ def wait_for(func, desc, timeout_seconds=1*60):
         print(".", end="")
         sys.stdout.flush()
         time.sleep(1)
+
+exit_funcs = []
+def exit_gracefully(_signum, _frame):
+    print("Exiting... ", end="")
+    for func in exit_funcs:
+        func()
+    print("Goodbye!")
+    os._exit(0)
 
 if __name__ == "__main__":
     main()
