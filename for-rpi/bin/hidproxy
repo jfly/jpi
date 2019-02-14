@@ -2,6 +2,7 @@
 
 import os
 import sys
+import time
 import signal
 from os.path import join
 from collections import namedtuple
@@ -133,13 +134,10 @@ def create_gadget_function(device_info: DeviceInfo) -> GadgetInfo:
     with open(udc_path, "w") as f:
         f.write(udc_contents)
 
-    # Wait for the device to actually get created.
-    os.system("udevadm settle -t 5")
-
     with open(join(function_dir, "dev"), "r") as f:
         char_addr = f.read().strip()
     hidg_device_path = join("/dev/char/", char_addr)
-    assert os.path.exists(hidg_device_path)
+    wait_for(lambda: os.path.exists(hidg_device_path), desc="{} to exist".format(hidg_device_path))
 
     def cleanup():
         disable_gadget()
@@ -164,6 +162,26 @@ def get_only_element(arr):
     arr = list(arr)
     assert len(arr) == 1
     return arr[0]
+
+def wait_for(func, desc, timeout_seconds=1*60):
+    if func():
+        return
+
+    start = time.time()
+    print("Waiting for {}".format(desc), end="")
+    sys.stdout.flush()
+    while True:
+        if func():
+            print("done!")
+            return
+
+        if (time.time() - start) > timeout_seconds:
+            print("timeout!")
+            assert False
+
+        print(".", end="")
+        sys.stdout.flush()
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()
