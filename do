@@ -40,11 +40,11 @@ function bootstrap() {
     # TODO - rename the device to maybe hidproxy.local?
     ssh_url=pi@raspberrypi
 
-    echo "First, let's change the password on the device."
-    ssh -t $ssh_url passwd # TODO - maybe remove password instead?
-
-    echo "Second, let's update the device."
-    ssh $ssh_url "sudo apt-get update && sudo apt-get full-upgrade"
+    #<<< echo "First, let's change the password on the device."
+    #<<< ssh -t $ssh_url passwd # TODO - maybe remove password instead?
+    #<<<
+    #<<< echo "Second, let's update the device."
+    #<<< ssh $ssh_url "sudo apt-get update && sudo apt-get full-upgrade"
 
     echo "Third, let's copy all our code to the device."
     rsync -chavzP --rsync-path="sudo rsync" for-rpi/ $ssh_url:/

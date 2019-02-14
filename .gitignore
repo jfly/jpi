@@ -1,0 +1,7 @@
+/out/build
+/out/host
+/out/images
+/out/staging
+/out/target
+/out/.br2-external.*
+/out/..config.tmp

@@ -155,3 +155,24 @@ root@raspberrypi:/sys/kernel/config/usb_gadget/isticktoit# ln -s functions/rndis
 /root@raspberrypi:/sys/kernel/config/usb_gadget/isticktoit# echo > UDC
 root@raspberrypi:/sys/kernel/config/usb_gadget/isticktoit# ls /sys/class/udc/ > UDC
 ```
+
+## Setting up Buildroot
+
+https://github.com/buildroot/buildroot/tree/master/board/raspberrypi
+
+Urg, vagrant ended up being too small, and resizing was a pain
+```
+$ curl -O https://buildroot.org/downloads/Vagrantfile; vagrant up
+$ vagrant ssh
+```
+
+```
+$ wget https://buildroot.org/downloads/buildroot-2018.11.tar.gz
+$ tar xvf buildroot-2018.11.tar.gz
+$ cd buildroot-2018.11/
+$ make raspberrypi0w_defconfig  # .config file is gitignored?
+$ make nconfig #<<< needed ??? >>>
+$ make
+$ cp /home/vagrant/buildroot-2018.11/output/images/sdcard.img /vagrant/
+$ 
+```
