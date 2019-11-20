@@ -1,0 +1,385 @@
+https://blog.tanelpoder.com/psnapper/ looks promising
+
+https://github.com/torvalds/linux/commit/072684e8c58d17e853f8e8b9f6d9ce2e58d2b036#diff-d5fc6308a50b2ad65061e3ed25dc6c4b fixes a deadlick in `f_hidg_write`. maybe related?? the backtrace looks different (longer), though
+
+### Tue, Nov 5, 2019 update
+
+    $ sudo cat /proc/468/stack
+    [<0>] f_hidg_write+0x1f8/0x3c8 [usb_f_hid]
+    [<0>] __vfs_write+0x44/0x170
+    [<0>] vfs_write+0xb0/0x1bc
+    [<0>] ksys_write+0x70/0xe8
+    [<0>] sys_write+0x18/0x1c
+    [<0>] __idmap_text_end+0xdc8/0xdc8
+    [<0>] 0xbefd55d4
+    [<0>] 0xffffffff
+
+Relevant kernel code? https://github.com/torvalds/linux/blob/v4.19/drivers/usb/gadget/function/f_hid.c#L334-L414
+
+    pi@raspberrypi:~ $ sudo grep f_hidg_write /proc/kallsyms 
+    bf4f5c84 t f_hidg_write	[usb_f_hid]
+
+https://onebitbug.me/2011/03/04/introducing-linux-kernel-symbols/ says "In general, one will tell you this is the output of nm vmlinux", but I can't seem to access a vmlinux for my rpi =( =(
+https://raspberrypi.stackexchange.com/questions/88621/why-doesnt-extract-vmlinux-work-with-raspbians-boot-kernel-img https://bugs.linaro.org/show_bug.cgi?id=461
+
+    pi@raspberrypi:~ $ ps -flp 468
+    F S UID        PID  PPID  C PRI  NI ADDR SZ WCHAN  STIME TTY          TIME CMD
+    4 S root       468     1  0  80   0 -  2865 -      03:03 ?        00:00:01 python3 /bin/hidproxy 0005:17EF:6048.0001
+
+    pi@raspberrypi:~ $ cat /proc/468/status
+    Name:	python3
+    Umask:	0022
+    State:	S (sleeping)
+    Tgid:	468
+    Ngid:	0
+    Pid:	468
+    PPid:	1
+    TracerPid:	0
+    Uid:	0	0	0	0
+    Gid:	0	0	0	0
+    FDSize:	256
+    Groups:	 
+    NStgid:	468
+    NSpid:	468
+    NSpgid:	468
+    NSsid:	468
+    VmPeak:	   11460 kB
+    VmSize:	   11460 kB
+    VmLck:	       0 kB
+    VmPin:	       0 kB
+    VmHWM:	    7568 kB
+    VmRSS:	    7568 kB
+    RssAnon:	    2600 kB
+    RssFile:	    4968 kB
+    RssShmem:	       0 kB
+    VmData:	    3000 kB
+    VmStk:	     132 kB
+    VmExe:	    3424 kB
+    VmLib:	    2376 kB
+    VmPTE:	      18 kB
+    VmSwap:	       0 kB
+    CoreDumping:	0
+    Threads:	1
+    SigQ:	0/3393
+    SigPnd:	0000000000000000
+    ShdPnd:	0000000000000000
+    SigBlk:	0000000000000000
+    SigIgn:	0000000001001000
+    SigCgt:	0000000180004002
+    CapInh:	0000000000000000
+    CapPrm:	0000003fffffffff
+    CapEff:	0000003fffffffff
+    CapBnd:	0000003fffffffff
+    CapAmb:	0000000000000000
+    NoNewPrivs:	0
+    Seccomp:	0
+    Speculation_Store_Bypass:	unknown
+    Cpus_allowed:	1
+    Cpus_allowed_list:	0
+    voluntary_ctxt_switches:	916
+    nonvoluntary_ctxt_switches:	161
+
+    pi@raspberrypi:~ $ cat /proc/468/sched
+    python3 (468, #threads: 1)
+    -------------------------------------------------------------------
+    se.exec_start                                :         96004.849000
+    se.vruntime                                  :          1358.173422
+    se.sum_exec_runtime                          :          1359.616000
+    se.nr_migrations                             :                    0
+    nr_switches                                  :                 1077
+    nr_voluntary_switches                        :                  916
+    nr_involuntary_switches                      :                  161
+    se.load.weight                               :                 1024
+    se.runnable_weight                           :                    0
+    policy                                       :                    0
+    prio                                         :                  120
+    clock-delta                                  :                    0
+
+    pi@raspberrypi:~ $ sudo cat /proc/468/syscall 
+    0 0x3 0x23ee600 0x6 0x0 0xb6f9e980 0x378000 0xbefd55d4 0xb6f4b33c
+    # In /usr/include/asm-generic/unistd.h: #define __NR_io_setup 0
+
+
+
+### Thu, Oct 31, 2019 update
+
+    $ sudo gdb python3 528
+    ...
+    (gdb) bt
+    #0  0xb6f2833c in write () at ../sysdeps/unix/syscall-template.S:84
+    #1  0x001acb28 in _Py_write_impl (gil_held=1, count=6, buf=0x1afc568, fd=3) at ../Python/fileutils.c:1274
+    #2  _Py_write (fd=3, buf=0x1afc568, count=6) at ../Python/fileutils.c:1332
+    #3  0x00087694 in _io_FileIO_write_impl.isra.6 (self=0xb6928600) at ../Modules/_io/fileio.c:864
+    #4  _io_FileIO_write.lto_priv.1165 (self=0xb6928600, arg=<memoryview at remote 0xb6a47bf8>) at ../Modules/_io/clinic/fileio.c.h:245
+    #5  0x0013cb98 in PyCFunction_Call (func=<built-in method write of _io.FileIO object at remote 0xb6928600>, args=<optimized out>, kwds=0x0) at ../Objects/methodobject.c:134
+    #6  0x0018a15c in PyObject_Call (func=func@entry=<built-in method write of _io.FileIO object at remote 0xb6928600>, arg=arg@entry=(<memoryview at remote 0xb6a47bf8>,), kw=kw@entry=0x0) at ../Objects/abstract.c:2166
+    #7  0x0018b6d0 in PyObject_CallMethodObjArgs (callable=<built-in method write of _io.FileIO object at remote 0xb6928600>, name='write') at ../Objects/abstract.c:2395
+    #8  0x00080ef0 in _bufferedwriter_raw_write (len=1, start=<optimized out>, self=0xb6b0ae00) at ../Modules/_io/bufferedio.c:1844
+    #9  _bufferedwriter_flush_unlocked (self=0xb6b0ae00) at ../Modules/_io/bufferedio.c:1891
+    #10 buffered_flush_and_rewind_unlocked (self=self@entry=0xb6b0ae00) at ../Modules/_io/bufferedio.c:827
+    #11 0x00083998 in buffered_flush (self=0xb6b0ae00, args=<optimized out>) at ../Modules/_io/bufferedio.c:854
+    #12 0x000b14a0 in call_function (oparg=<optimized out>, pp_stack=0xbec3f82c) at ../Python/ceval.c:4699
+    #13 PyEval_EvalFrameEx (f=f@entry=Frame 0xb6990360, for file /bin/hidproxy, line 166, in proxy_forever (device_info=<DeviceInfo at remote 0xb6928540>, gadget_info=<GadgetInfo at remote 0xb692db98>, out_f=<_io.BufferedRandom at remote 0xb6b0ae00>, out_fd=3, in_fd=4, buf=b'\x02\x00\x02\xfa\x00\x00'), 
+        throwflag=throwflag@entry=0) at ../Python/ceval.c:3251
+    #14 0x000b1a7c in fast_function (nk=<optimized out>, na=<optimized out>, n=-1230075058, pp_stack=0xbec3f944, func=<optimized out>) at ../Python/ceval.c:4818
+    #15 call_function (oparg=<optimized out>, pp_stack=0xbec3f944) at ../Python/ceval.c:4745
+    #16 PyEval_EvalFrameEx (f=f@entry=Frame 0xb697b5d0, for file /bin/hidproxy, line 22, in main (kernel_name='0005:17EF:6048.0001', device_info=<DeviceInfo at remote 0xb6928540>, gadget_info=<GadgetInfo at remote 0xb692db98>), throwflag=throwflag@entry=0) at ../Python/ceval.c:3251
+    #17 0x000b1a7c in fast_function (nk=<optimized out>, na=<optimized out>, n=-1230340739, pp_stack=0xbec3fa5c, func=<optimized out>) at ../Python/ceval.c:4818
+    #18 call_function (oparg=<optimized out>, pp_stack=0xbec3fa5c) at ../Python/ceval.c:4745
+    #19 PyEval_EvalFrameEx (f=Frame 0xb6af1850, for file /bin/hidproxy, line 211, in <module> (), throwflag=<optimized out>) at ../Python/ceval.c:3251
+    #20 0x001985c8 in _PyEval_EvalCodeWithName.lto_priv.1961 (_co=<code at remote 0xb6a4d610>, globals=<optimized out>, locals=<optimized out>, args=<optimized out>, argcount=0, kws=0x0, kwcount=0, defs=0x0, defcount=0, kwdefs=0x0, closure=0x0, name=<optimized out>, qualname=0x0) at ../Python/ceval.c:4033
+    #21 0x000a6f28 in PyEval_EvalCodeEx () at ../Python/ceval.c:4054
+    #22 PyEval_EvalCode (co=<optimized out>, globals=<optimized out>, locals=<optimized out>) at ../Python/ceval.c:777
+    #23 0x002278f8 in run_mod (mod=<optimized out>, filename=<optimized out>, 
+        globals={'signal': <module at remote 0xb6a45f90>, 'proxy_forever': <function at remote 0xb692b078>, 'main': <function at remote 0xb6a4c030>, 'create_gadget_function': <function at remote 0xb691cd20>, 'get_only_element': <function at remote 0xb692b2b8>, 'sys': <module at remote 0xb6b07570>, '__package__': None, '__loader__': <SourceFileLoader(name='__main__', path='/bin/hidproxy') at remote 0xb6a75f30>, 'maybe_fixup_device': <function at remote 0xb692b270>, 'Uevent': <type at remote 0xb691fb40>, 'DeviceInfo': <type at remote 0xb691f790>, 'exit_gracefully': <function at remote 0xb692b348>, 'join': <function at remote 0xb6a17390>, '__name__': '__main__', '__cached__': None, 'time': <module at remote 0xb6a45d50>, '__spec__': None, '__doc__': None, 'wait_for': <function at remote 0xb692b300>, 'GadgetInfo': <type at remote 0xb691fd18>, '__builtins__': <module at remote 0xb6af9540>, 'get_device_info': <function at remote 0xb6a37fa8>, 'namedtuple': <function at remote 0xb6a2edb0>, 'os': <module at remote 0xb6a78d50>, 'exit_f...(truncated), 
+        locals={'signal': <module at remote 0xb6a45f90>, 'proxy_forever': <function at remote 0xb692b078>, 'main': <function at remote 0xb6a4c030>, 'create_gadget_function': <function at remote 0xb691cd20>, 'get_only_element': <function at remote 0xb692b2b8>, 'sys': <module at remote 0xb6b07570>, '__package__': None, '__loader__': <SourceFileLoader(name='__main__', path='/bin/hidproxy') at remote 0xb6a75f30>, 'maybe_fixup_device': <function at remote 0xb692b270>, 'Uevent': <type at remote 0xb691fb40>, 'DeviceInfo': <type at remote 0xb691f790>, 'exit_gracefully': <function at remote 0xb692b348>, 'join': <function at remote 0xb6a17390>, '__name__': '__main__', '__cached__': None, 'time': <module at remote 0xb6a45d50>, '__spec__': None, '__doc__': None, 'wait_for': <function at remote 0xb692b300>, 'GadgetInfo': <type at remote 0xb691fd18>, '__builtins__': <module at remote 0xb6af9540>, 'get_device_info': <function at remote 0xb6a37fa8>, 'namedtuple': <function at remote 0xb6a2edb0>, 'os': <module at remote 0xb6a78d50>, 'exit_f...(truncated), flags=0xbec3fc14, arena=0x1a74be0) at ../Python/pythonrun.c:976
+    #24 0x002279cc in PyRun_FileExFlags (fp=fp@entry=0x1a7d088, filename_str=filename_str@entry=0xb6a75f50 "/bin/hidproxy", start=start@entry=257, 
+        globals=globals@entry={'signal': <module at remote 0xb6a45f90>, 'proxy_forever': <function at remote 0xb692b078>, 'main': <function at remote 0xb6a4c030>, 'create_gadget_function': <function at remote 0xb691cd20>, 'get_only_element': <function at remote 0xb692b2b8>, 'sys': <module at remote 0xb6b07570>, '__package__': None, '__loader__': <SourceFileLoader(name='__main__', path='/bin/hidproxy') at remote 0xb6a75f30>, 'maybe_fixup_device': <function at remote 0xb692b270>, 'Uevent': <type at remote 0xb691fb40>, 'DeviceInfo': <type at remote 0xb691f790>, 'exit_gracefully': <function at remote 0xb692b348>, 'join': <function at remote 0xb6a17390>, '__name__': '__main__', '__cached__': None, 'time': <module at remote 0xb6a45d50>, '__spec__': None, '__doc__': None, 'wait_for': <function at remote 0xb692b300>, 'GadgetInfo': <type at remote 0xb691fd18>, '__builtins__': <module at remote 0xb6af9540>, 'get_device_info': <function at remote 0xb6a37fa8>, 'namedtuple': <function at remote 0xb6a2edb0>, 'os': <module at remote 0xb6a78d50>, 'exit_f...(truncated), 
+        locals=locals@entry={'signal': <module at remote 0xb6a45f90>, 'proxy_forever': <function at remote 0xb692b078>, 'main': <function at remote 0xb6a4c030>, 'create_gadget_function': <function at remote 0xb691cd20>, 'get_only_element': <function at remote 0xb692b2b8>, 'sys': <module at remote 0xb6b07570>, '__package__': None, '__loader__': <SourceFileLoader(name='__main__', path='/bin/hidproxy') at remote 0xb6a75f30>, 'maybe_fixup_device': <function at remote 0xb692b270>, 'Uevent': <type at remote 0xb691fb40>, 'DeviceInfo': <type at remote 0xb691f790>, 'exit_gracefully': <function at remote 0xb692b348>, 'join': <function at remote 0xb6a17390>, '__name__': '__main__', '__cached__': None, 'time': <module at remote 0xb6a45d50>, '__spec__': None, '__doc__': None, 'wait_for': <function at remote 0xb692b300>, 'GadgetInfo': <type at remote 0xb691fd18>, '__builtins__': <module at remote 0xb6af9540>, 'get_device_info': <function at remote 0xb6a37fa8>, 'namedtuple': <function at remote 0xb6a2edb0>, 'os': <module at remote 0xb6a78d50>, 'exit_f...(truncated), closeit=closeit@entry=1, flags=flags@entry=0xbec3fc14) at ../Python/pythonrun.c:929
+    #25 0x0022b134 in PyRun_SimpleFileExFlags (fp=0x1a7d088, filename=<optimized out>, closeit=1, flags=0xb6a4b610) at ../Python/pythonrun.c:396
+    #26 0x0025be28 in run_file (p_cf=0xbec3fc0c, filename=0x1a559b0 L"/bin/hidproxy", fp=0x1a7d088) at ../Modules/main.c:318
+    #27 Py_Main (argc=argc@entry=3, argv=argv@entry=0x1a55008) at ../Modules/main.c:768
+    #28 0x00062550 in main (argc=3, argv=0xbec3fe34) at ../Programs/python.c:65
+    (gdb) py-bt
+    Traceback (most recent call first):
+      <built-in method write of _io.FileIO object at remote 0xb6928600>
+      File "/bin/hidproxy", line 166, in proxy_forever
+        out_f.flush()
+      File "/bin/hidproxy", line 22, in main
+        proxy_forever(device_info, gadget_info)
+      File "/bin/hidproxy", line 211, in <module>
+        main()
+    (gdb) info threads
+      Id   Target Id         Frame 
+    * 1    Thread 0xb6f7b4b0 (LWP 485) "python3" 0xb6f2833c in write () at ../sysdeps/unix/syscall-template.S:84
+    (gdb) thread apply all py-list
+
+    Thread 1 (Thread 0xb6f7b4b0 (LWP 485)):
+     161                print("About to read 9 bytes from in_fd: {}".format(in_fd)) #<<<
+     162                buf = os.read(in_fd, 9) # TODO: I'm not sure what buffer size to actually put here...
+     163                print("Just read {} bytes from in_fd: {}. About to write them to out_fd: {}".format(len(buf), in_fd, out_fd)) #<<<
+     164                out_f.write(buf)
+     165                print("Just wrote {} bytes to out_fd: {}. About to flush out_fd".format(len(buf), out_fd)) #<<<
+    >166                out_f.flush()
+     167                print("Just flushed out_fd: {}".format(out_fd)) #<<<
+     168    
+     169    def maybe_fixup_device(device_info, in_fd):
+     170        """Some devices need special initialization. This is the place to do that."""
+     171    
+    (gdb) cont
+    # this fixed it! so probably the simple act of attaching using gdb was enough to unstick the process, but you couldn't tell because gdb automatically pauses the process you're attaching to... so, maybe no more informative than strace was.
+
+
+### Wed, Oct 30, 2019 update
+
+Following the instructions on https://wiki.python.org/moin/DebuggingWithGdb:
+
+    $ sudo apt-get install python3-dbg
+    ...
+    $ sudo gdb python 528
+    Reading symbols from python...(no debugging symbols found)...done.
+    Attaching to program: /usr/bin/python, process 528
+
+    warning: Corrupted shared library list: 0x0 != 0x2390e12f
+
+    warning: Corrupted shared library list: 0x0 != 0x2390e12f
+
+    warning: Corrupted shared library list: 0x0 != 0x2390e12f
+
+    warning: Corrupted shared library list: 0x0 != 0x2390e12f
+    Reading symbols from /lib/ld-linux-armhf.so.3...Reading symbols from /usr/lib/debug/.build-id/09/4b30e8c4ded4dca627b8adf5e6324125084005.debug...done.
+    done.
+    0xb6f1533c in ?? ()
+    (gdb) quit
+    A debugging session is active.
+
+        Inferior 1 [process 528] will be detached.
+
+    Quit anyway? (y or n) y
+    Detaching from program: /usr/bin/python, process 528
+
+
+Oops, this looks like a consequence of using python (python 2) rather than python3 on the running process =(
+
+### Tue, Oct 29, 2019 update
+
+gdb-ing in doesn't seem to "unstick" the program, but quitting does... weird:
+
+    $ sudo gdb -p 483
+    ...
+    (gdb) where
+    #0  0xb6ecb33c in write () at ../sysdeps/unix/syscall-template.S:84
+    #1  0x001acb28 in _Py_write ()
+    #2  0x00087694 in ?? ()
+    Backtrace stopped: previous frame identical to this frame (corrupt stack?)
+    (gdb) quit
+    A debugging session is active.
+
+        Inferior 1 [process 483] will be detached.
+
+
+### Fri, Oct 25 2019 update
+
+Here's an example of the keyboard stuck:
+
+    ● hidproxy@0005:17EF:6048.0001.service - Copy all data from a HID Bluetooth device to a USB Gadget
+       Loaded: loaded (/etc/systemd/system/hidproxy@.service; static; vendor preset: enabled)
+       Active: active (running) since Fri 2019-10-25 06:28:58 BST; 10h ago
+     Main PID: 468 (python3)
+       CGroup: /system.slice/system-hidproxy.slice/hidproxy@0005:17EF:6048.0001.service
+               └─468 python3 /bin/hidproxy 0005:17EF:6048.0001
+
+    Oct 25 06:28:58 raspberrypi systemd[1]: Started Copy all data from a HID Bluetooth device to a USB Gadget.
+    Oct 25 06:28:59 raspberrypi hidproxy[468]: Handling new HID device: 0005:17EF:6048.0001.
+    Oct 25 06:28:59 raspberrypi hidproxy[468]: Uevent(driver='hid-generic', hid_id='0005:000017EF:00006048', hid_name='ThinkPad Compact Bluetooth Keyboard with TrackPoint', hid_phys='b8:27:eb:e5:7d:d4', hid_uniq='90:7f:61:03:83:fc', modalias='hid:b0005g0001v000017EFp00006048')
+    Oct 25 06:29:00 raspberrypi hidproxy[468]: Waiting for /dev/char/240:1 to exist.done!
+    Oct 25 06:29:00 raspberrypi hidproxy[468]: Proxying forever from /dev/char/245:0 to /dev/char/240:1
+    Oct 25 06:29:00 raspberrypi hidproxy[468]: About to read 9 bytes from in_fd: 4
+    Oct 25 06:29:01 raspberrypi hidproxy[468]: Just read 9 bytes from in_fd: 4. About to write them to out_fd: 3
+    Oct 25 06:29:01 raspberrypi hidproxy[468]: Just wrote 9 bytes to out_fd: 3. About to flush out_fd
+
+
+This invocation of strace unlocked the process:
+
+    pi@raspberrypi:~ $ sudo strace -p 468
+    strace: Process 468 attached
+    write(3, "\0\0", 2)                     = 2
+    _llseek(3, 0, [0], SEEK_CUR)            = 0
+    write(1, "Just flushed out_fd: 3\n", 23) = 23
+    write(1, "About to read 9 bytes from in_fd"..., 36) = 36
+    read(4, "\20\0\0", 9)                   = 3
+    write(1, "Just read 3 bytes from in_fd: 4."..., 66) = 66
+    write(1, "Just wrote 3 bytes to out_fd: 3."..., 55) = 55
+    write(3, "\20\0\0", 3)                  = 3
+    _llseek(3, 0, [0], SEEK_CUR)            = 0
+    write(1, "Just flushed out_fd: 3\n", 23) = 23
+    write(1, "About to read 9 bytes from in_fd"..., 36) = 36
+    read(4, "\1\0\0\0\0\0\0\0\0", 9)        = 9
+    write(1, "Just read 9 bytes from in_fd: 4."..., 66) = 66
+    write(1, "Just wrote 9 bytes to out_fd: 3."..., 55) = 55
+    write(3, "\1\0\0\0\0\0\0\0\0", 9)       = 7
+    write(3, "\0\0", 2)                     = 2
+
+
+
+
+
+
+
+
+
+
+Right now: 
+
+pi@raspberrypi:~ $ date
+Tue  8 Oct 16:41:19 BST 2019
+pi@raspberrypi:~ $ date -u
+Tue  8 Oct 15:41:27 UTC 2019
+
+
+pi@raspberrypi:~ $ journalctl -u hidproxy@0005:046D:B015.0002.service
+...
+Oct 08 11:54:38 raspberrypi strace[1938]: write(3, "\2\0\0\373\17\0\0\0", 8)      = 7
+Oct 08 11:54:38 raspberrypi strace[1938]: write(3, "\0", 1)                       = 1
+Oct 08 11:54:38 raspberrypi strace[1938]: _llseek(3, 0, [0], SEEK_CUR)            = 0
+Oct 08 11:54:38 raspberrypi strace[1938]: read(4, "\2\0\0\374\17\0\0\0", 9)       = 8
+Oct 08 11:54:38 raspberrypi strace[1938]: write(3, "\2\0\0\374\17\0\0\0", 8)      = 7
+Oct 08 11:54:38 raspberrypi strace[1938]: write(3, "\0", 1)                       = 1
+Oct 08 11:54:38 raspberrypi strace[1938]: _llseek(3, 0, [0], SEEK_CUR)            = 0
+Oct 08 11:54:38 raspberrypi strace[1938]: read(4, "\2\0\0\375\17\0\0\0", 9)       = 8
+Oct 08 11:54:38 raspberrypi strace[1938]: write(3, "\2\0\0\375\17\0\0\0", 8)      = 7
+Oct 08 11:54:38 raspberrypi strace[1938]: write(3, "\0", 1)                       = 1
+
+This ^ is not what I'd expect. I'd *expect* to see it blocked in a read, instead it doesn't seem to be blocked at all...
+
+$ pstree -apl
+  |-strace,1938 /bin/hidproxy 0005:046D:B015.0002
+  |   `-python3,1944 /bin/hidproxy 0005:046D:B015.0002
+
+pi@raspberrypi:~ $ ps auxff
+root      1938  0.0  0.3   2268  1520 ?        Ss   09:14   0:22 /usr/bin/strace /bin/hidproxy 0005:046D:B015.0002
+root      1944  0.0  1.7  11460  7688 ?        S    09:14   0:16  \_ python3 /bin/hidproxy 0005:046D:B015.0002
+
+$ man stat
+PROCESS STATE CODES
+       Here are the different values that the s, stat and state output specifiers (header "STAT" or "S") will display to describe the state of a process:
+
+               D    uninterruptible sleep (usually IO)
+               R    running or runnable (on run queue)
+               S    interruptible sleep (waiting for an event to complete)
+               T    stopped by job control signal
+               t    stopped by debugger during the tracing
+               W    paging (not valid since the 2.6.xx kernel)
+               X    dead (should never be seen)
+               Z    defunct ("zombie") process, terminated but not reaped by its parent
+
+       For BSD formats and when the stat keyword is used, additional characters may be displayed:
+
+               <    high-priority (not nice to other users)
+               N    low-priority (nice to other users)
+               L    has pages locked into memory (for real-time and custom IO)
+               s    is a session leader
+               l    is multi-threaded (using CLONE_THREAD, like NPTL pthreads do)
+               +    is in the foreground process group
+
+
+$ sudo gdb -p 1944
+...
+warning: process 1944 is already traced by process 1938
+ptrace: Operation not permitted.
+
+
+=( =( =( =(
+
+pi@raspberrypi:~ $ cat /proc/1944/status
+Name:	python3
+Umask:	0022
+State:	S (sleeping)
+Tgid:	1944
+Ngid:	0
+Pid:	1944
+PPid:	1938
+TracerPid:	1938
+Uid:	0	0	0	0
+Gid:	0	0	0	0
+FDSize:	32
+Groups:	 
+NStgid:	1944
+NSpid:	1944
+NSpgid:	1938
+NSsid:	1938
+VmPeak:	   11460 kB
+VmSize:	   11460 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	    7688 kB
+VmRSS:	    7440 kB
+RssAnon:	    2600 kB
+RssFile:	    4840 kB
+RssShmem:	       0 kB
+VmData:	    3000 kB
+VmStk:	     132 kB
+VmExe:	    3424 kB
+VmLib:	    2376 kB
+VmPTE:	      20 kB
+VmPMD:	       0 kB
+VmSwap:	       0 kB
+Threads:	1
+SigQ:	0/3400
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000001001000
+SigCgt:	0000000180004002
+CapInh:	0000000000000000
+CapPrm:	0000003fffffffff
+CapEff:	0000003fffffffff
+CapBnd:	0000003fffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Speculation_Store_Bypass:	unknown
+Cpus_allowed:	1
+Cpus_allowed_list:	0
+voluntary_ctxt_switches:	254543
+nonvoluntary_ctxt_switches:	183
