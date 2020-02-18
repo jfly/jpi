@@ -160,19 +160,15 @@ root@raspberrypi:/sys/kernel/config/usb_gadget/isticktoit# ls /sys/class/udc/ > 
 
 https://github.com/buildroot/buildroot/tree/master/board/raspberrypi
 
-Urg, vagrant ended up being too small, and resizing was a pain
-```
-$ curl -O https://buildroot.org/downloads/Vagrantfile; vagrant up
-$ vagrant ssh
-```
+### TODO
 
-```
-$ wget https://buildroot.org/downloads/buildroot-2018.11.tar.gz
-$ tar xvf buildroot-2018.11.tar.gz
-$ cd buildroot-2018.11/
-$ make raspberrypi0w_defconfig  # .config file is gitignored?
-$ make nconfig #<<< needed ??? >>>
-$ make
-$ cp /home/vagrant/buildroot-2018.11/output/images/sdcard.img /vagrant/
-$ 
-```
+- Figure out how to build rust code + run code on boot
+   - this looks like promising instructions: http://www.elebihan.com/posts/how-to-add-a-buildroot-package-for-a-cargo-crate.html
+- Raspberry PI gpio? one-wire protocol?
+- Figure out a better way of naming devices. Should we ask the user for a
+   name? Should we autogenerate one and print it out clearly?
+   - For now: need to update `BR2_TARGET_GENERIC_HOSTNAME` in `out/.config` and
+   - `buildroot-external/thermometer/overlay/etc/network/interfaces`
+- Set up a read-only rootfs?
+- Maybe add a non-root user + sudo? Then we could remove the custom sshd configuration.
+- OTA updates (swupdate looks like a tool some people use)

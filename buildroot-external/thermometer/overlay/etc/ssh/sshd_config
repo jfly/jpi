@@ -115,4 +115,5 @@ Subsystem	sftp	/usr/libexec/sftp-server
 #	PermitTTY no
 #	ForceCommand cvs server
 
+# TODO: Consider adding a non-root user instead, and giving them sudo.
 PermitRootLogin yes
