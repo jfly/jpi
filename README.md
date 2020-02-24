@@ -163,6 +163,8 @@ https://github.com/buildroot/buildroot/tree/master/board/raspberrypi
 ### TODO
 
 - Figure out how to build rust code + run code on boot
+   - https://git.buildroot.net/buildroot/commit/?id=b50522d838d8ddfef80bf8036e511319982da16e
+   - https://www.reddit.com/r/rust/comments/5apj6v/buildroot_and_embedded_rust/
    - this looks like promising instructions: http://www.elebihan.com/posts/how-to-add-a-buildroot-package-for-a-cargo-crate.html
 - Raspberry PI gpio? one-wire protocol?
 - Figure out a better way of naming devices. Should we ask the user for a
@@ -172,3 +174,7 @@ https://github.com/buildroot/buildroot/tree/master/board/raspberrypi
 - Set up a read-only rootfs?
 - Maybe add a non-root user + sudo? Then we could remove the custom sshd configuration.
 - OTA updates (swupdate looks like a tool some people use)
+- Why are sshd *and* dropbear both trying to start?
+    Jan  1 00:00:33 thermometer auth.err sshd[165]: error: Bind to port 22 on :: failed: Address already in use.
+    Jan  1 00:00:33 thermometer auth.err sshd[165]: error: Bind to port 22 on 0.0.0.0 failed: Address already in use.
+    Jan  1 00:00:33 thermometer auth.crit sshd[165]: fatal: Cannot bind any address.
