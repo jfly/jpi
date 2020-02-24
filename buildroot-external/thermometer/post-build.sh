@@ -2,6 +2,7 @@
 
 set -u
 set -e
+cd "$(dirname "$0")"
 
 # Copy over the ssh keys of whoever is building this project.
 # This clever idea was stolen from http://lists.busybox.net/pipermail/buildroot/2013-April/071111.html
@@ -16,3 +17,6 @@ WIFI_SSID="Hen Wen"
 WIFI_PASSWORD=$(nmcli --show-secrets -g 802-11-wireless-security.psk connection show "$WIFI_SSID")
 sed -i "s/REPLACE_WITH_SSID/$WIFI_SSID/" "${TARGET_DIR}/etc/wpa_supplicant.conf"
 sed -i "s/REPLACE_WITH_PSK/$WIFI_PASSWORD/" "${TARGET_DIR}/etc/wpa_supplicant.conf"
+
+# Copy custom config.txt file with dtoverlay.
+cp config.txt "${BINARIES_DIR}/rpi-firmware/config.txt"
