@@ -2,8 +2,9 @@
 
 import glob
 import json
-import os.path
 import socket
+import os.path
+import traceback
 
 # Copied (and modified) from
 # https://docs.micropython.org/en/latest/esp8266/tutorial/network_tcp.html#simple-http-server
@@ -43,20 +44,26 @@ def main():
     print('listening on', addr)
 
     while True:
-        cl, addr = s.accept()
-        print('client connected from', addr)
-        cl_file = cl.makefile('rwb', 0)
-        while True:
-            line = cl_file.readline()
-            if not line or line == b'\r\n':
-                break
+        client, addr = s.accept()
+        try:
+            print('client connected from', addr)
+            cl_file = client.makefile('rwb', 0)
+            while True:
+                line = cl_file.readline()
+                if not line or line == b'\r\n':
+                    break
 
-        response, content_type = handle_request()
-        if content_type == "application/json":
-            response = json.dumps(response)
-        cl.send('HTTP/1.0 200 OK\r\nContent-type: %s\r\n\r\n' % content_type)
-        cl.send(response)
-        cl.close()
+            response, content_type = handle_request()
+            if content_type == "application/json":
+                response = json.dumps(response)
+            client.send('HTTP/1.0 200 OK\r\nContent-type: %s\r\n\r\n' % content_type)
+            client.send(response)
+        except Exception: # pylint: disable=broad-except
+            # Don't crash the server, but do print out information about the
+            # exception.
+            traceback.print_exc()
+        finally:
+            client.close()
 
 if __name__ == "__main__":
     main()
