@@ -11,7 +11,7 @@ start() {
     printf "Starting thermometer server: "
 
     start-stop-daemon -S -q -p /var/run/thermometer.pid \
-        --exec /usr/sbin/thermometer.py -- $DROPBEAR_ARGS
+        --exec /usr/sbin/thermometer.py
     [ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 
