@@ -5,21 +5,30 @@ help:
 	@echo "Hi there! Someday something useful may go here."
 	@echo "For now, try 'make build' or 'make sdcard'."
 
+ifndef BOARD
+$(error BOARD must be defined)
+endif
+ifeq ($(wildcard boards/$(BOARD)/.),)
+$(error BOARD '$(BOARD)' not found. Try one of: $(shell ls boards/))
+endif
+OUTDIR=$(CURDIR)/out/$(BOARD)
+MAKE=make O=$(OUTDIR) -C buildroot
+
 .PHONY: configure
 configure:
-	make O=$(CURDIR)/out -C buildroot raspberrypi0w_defconfig
+	$(MAKE) raspberrypi0w_defconfig
 
 .PHONY: nconfig
 nconfig:
-	make O=$(CURDIR)/out -C buildroot nconfig
+	$(MAKE) nconfig
 
 .PHONY: build
 build:
-	make O=$(CURDIR)/out -C buildroot all
+	$(MAKE) all
 
 .PHONY: clean
 clean:
-	make O=$(CURDIR)/out -C buildroot clean
+	$(MAKE) clean
 
 .PHONY: sdcard
 sdcard:
@@ -27,4 +36,4 @@ sdcard:
 	@echo ""
 	@echo "For now, I'm too cowardly to actually do this for you."
 	@echo "Pick a device above (something like /dev/sdX),"
-	@echo "and then run 'sudo dd bs=4M if=out/images/sdcard.img of=/dev/sdX status=progress conv=fsync'"
+	@echo "and then run 'sudo dd bs=4M if=$(OUTDIR)/images/sdcard.img of=/dev/sdX status=progress conv=fsync'"
