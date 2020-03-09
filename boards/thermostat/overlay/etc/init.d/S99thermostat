@@ -1,0 +1,44 @@
+#!/bin/bash
+#
+# Starts thermostat server.
+#
+
+# TODO: Figure out how to get this to work with plain sh someday?
+# https://www.urbanautomaton.com/blog/2014/09/09/redirecting-bash-script-output-to-syslog/
+exec 1> >(exec logger -s -t thermostat.server) 2>&1
+
+start() {
+    printf "Starting thermostat server: "
+
+    start-stop-daemon -S -q -p /var/run/thermostat.pid \
+        --exec /usr/sbin/thermostat.py
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+stop() {
+    printf "Stopping thermostat server: "
+    start-stop-daemon -K -q -p /var/run/thermostat.pid
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+restart() {
+    stop
+    start
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart|reload)
+        restart
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?
