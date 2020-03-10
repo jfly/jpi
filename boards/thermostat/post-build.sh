@@ -18,6 +18,15 @@ WIFI_PASSWORD=$(nmcli --show-secrets -g 802-11-wireless-security.psk connection 
 sed -i "s/REPLACE_WITH_SSID/$WIFI_SSID/" "${TARGET_DIR}/etc/wpa_supplicant.conf"
 sed -i "s/REPLACE_WITH_PSK/$WIFI_PASSWORD/" "${TARGET_DIR}/etc/wpa_supplicant.conf"
 
+# Hack to make this import in micropython happy:
+#  https://github.com/micropython/micropython-lib/blob/b89114c8345e15d360c3707493450805c114bc8c/machine/machine/timer.py#L10
+# Some light Googling leads me to believe that all this should be in the
+# whatever libc provider we have, and the explicit librt file is only provided
+# for backwards compatibility? Maybe the right fix is to instead have
+# micropython import libc rather than librt?
+# TODO: ask the buildroot folks what the right fix is.
+ln -sf libc.so.1 "${TARGET_DIR}/lib/librt.so.1"
+
 # Copy custom config.txt file.
 cp config.txt "${BINARIES_DIR}/rpi-firmware/config.txt"
 
