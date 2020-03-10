@@ -20,3 +20,7 @@ sed -i "s/REPLACE_WITH_PSK/$WIFI_PASSWORD/" "${TARGET_DIR}/etc/wpa_supplicant.co
 
 # Copy custom config.txt file.
 cp config.txt "${BINARIES_DIR}/rpi-firmware/config.txt"
+
+# Replace the DHCP hostname with the correct, configured hostname.
+HOSTNAME=$(grep -Po '(?<=BR2_TARGET_GENERIC_HOSTNAME=")[^"]+' "$BR2_CONFIG")
+sed -i "s/REPLACE_WITH_HOSTNAME/$HOSTNAME/" "${TARGET_DIR}/etc/network/interfaces"
