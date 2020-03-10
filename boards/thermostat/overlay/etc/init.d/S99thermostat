@@ -11,7 +11,7 @@ start() {
     printf "Starting thermostat server: "
 
     start-stop-daemon -S -q -p /var/run/thermostat.pid \
-        --exec /usr/sbin/thermostat.py
+        --exec /usr/sbin/server.py
     [ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 
