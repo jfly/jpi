@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+# Starts hidproxy.
+#
+
+# TODO: Figure out how to get this to work with plain sh someday?
+# https://www.urbanautomaton.com/blog/2014/09/09/redirecting-bash-script-output-to-syslog/
+exec 1> >(exec logger -s -t hidproxy.server) 2>&1
+
+start() {
+    printf "Starting hidproxy: "
+
+    start-stop-daemon -S -q -p /var/run/hidproxy.pid --exec /usr/sbin/hidproxy
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+stop() {
+    printf "Stopping hidproxy server: "
+    #<<< start-stop-daemon -K -q -p /var/run/hidproxy.pid
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+
+restart() {
+    stop
+    start
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart|reload)
+        restart
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?

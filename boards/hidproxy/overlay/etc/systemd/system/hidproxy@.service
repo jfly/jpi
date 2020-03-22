@@ -1,7 +1,0 @@
-[Unit]
-Description=Copy all data from a HID Bluetooth device to a USB Gadget
-StopWhenUnneeded=yes
-
-[Service]
-ExecStart=/bin/hidproxy %i
-Environment=PYTHONUNBUFFERED=1

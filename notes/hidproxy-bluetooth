@@ -1,0 +1,58 @@
+https://stackoverflow.com/questions/46707175/bluetooth-on-raspberry-pi-zero-w-using-buildroot
+
+    ssh hidproxy
+    modprobe bluetooth bnep btbcm hci_uart
+
+After the above, I'm getting:
+
+    # bluetoothctl 
+    Waiting to connect to bluetoothd...
+
+Urg. Maybe https://unix.stackexchange.com/questions/402623/waiting-to-connect-to-bluetoothd?
+
+    modprobe btusb
+
+Nope. In one terminal, run:
+
+    /usr/libexec/bluetooth/bluetoothd
+
+In another terminal:
+
+    # bluetoothctl
+    Agent registered
+    [bluetooth]# list
+    [bluetooth]# 
+
+From https://wiki.gentoo.org/wiki/Raspberry_Pi:
+
+    # btattach -B /dev/ttyAMA0 -P bcm -S 921600 -N
+    Attaching Primary controller to /dev/ttyAMA0
+    Failed set serial line discipline: Device or resource busy
+    No controller attached
+
+
+Oh! We have `dtoverlay=pi3-miniuart-bt` in config.txt (should read through
+https://www.raspberrypi.org/documentation/configuration/uart.md sometime and
+see if it makes sense). This command works:
+
+    # btattach -B /dev/ttyS0 -P bcm -S 921600 -N
+    Attaching Primary controller to /dev/ttyS0
+    Switched line discipline from 0 to 15
+    Device index 0 attached
+
+
+Removing `dtoverlay=pi3-miniuart-bt` from `config.txt`, rebooting, and:
+
+    # btattach -B /dev/ttyAMA0 -P bcm -S 921600 -N
+    # /usr/libexec/bluetooth/bluetoothd
+    # bluetoothctl
+    Agent registered
+    [CHG] Controller B8:27:EB:E5:7D:D4 Pairable: yes
+    [bluetooth]# list
+    Controller B8:27:EB:E5:7D:D4 BlueZ 5.52 [default]
+    [bluetooth]# power on
+    [bluetooth]# scan on
+    Discovery started
+    [CHG] Controller B8:27:EB:E5:7D:D4 Discovering: yes
+    [NEW] Device 28:11:A5:36:83:33 LE-jfly bose
+    [NEW] Device F8:94:C2:2F:A9:7B dalinar
