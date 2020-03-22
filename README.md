@@ -5,6 +5,7 @@ Buildroot configurations for miscellaneous Raspberry Pi projects of mine:
 - [hidproxy](#hidproxy)
 - [thermometer](#thermometer)
 - [thermostat](#thermostat)
+- [garage](#garage)
 
 To build a specific project (aka "board"):
 
@@ -34,3 +35,9 @@ Presents a HTTP api to control a furnace (by driving two attached relays).
 See [this Google Doc][thermostat doc] for more information
 
 [thermostat doc]: https://docs.google.com/document/d/19nYJWsHrPTapQddteFwLnRkTK_-vMuOusMupaPRWAcI/
+
+## garage
+
+Presents a HTTP api to check and change the status of the garage door.
+
+Inspired by: https://www.hagensieker.com/wordpress/2019/01/29/making-your-garage-door-smart/
