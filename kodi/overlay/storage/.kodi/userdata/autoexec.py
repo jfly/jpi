@@ -1,20 +1,19 @@
 import subprocess
 
 import xbmc
+import json
 
-# Basic idea from https://discourse.osmc.tv/t/turn-tv-on-cec-when-playing-a-video-solved/7446/5
-
-class Player(xbmc.Player):
-    def onAVStarted(self):
-        if self.isPlayingVideo():
-            xbmc.log("Looks like you just started playing a video. Attemping to turn on the tv and the receiver")
-            subprocess.check_call("/storage/tv-on.sh")
-        else:
-            xbmc.log("Looks like you just started playing audio (no video). Attemping to turn on just the receiver")
-            subprocess.check_call("/storage/receiver-on.sh")
-
-player = Player()
-mon = xbmc.Monitor()
-
-while not mon.waitForAbort(10):
-    pass
+# Enable the plugins we know we've installed.
+# TODO: Looks like we might be able to switch to this in v19 (https://kodi.wiki/view/List_of_built-in_functions#Add-on_built-in.27s): xbmc.executebuiltin('EnableAddon("script.parsec")')
+addons = ["script.parsec", "service.autoreceiver"]
+for addon in addons:
+    cmd_json = {
+        "jsonrpc": "2.0",
+        "id": "insideautoexec",
+        "method": "Addons.SetAddonEnabled",
+        "params": {
+            "addonid": addon,
+            "enabled": True,
+        },
+    }
+    xbmc.executeJSONRPC(json.dumps(cmd_json))
