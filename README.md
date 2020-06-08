@@ -6,6 +6,7 @@ Buildroot configurations for miscellaneous Raspberry Pi projects of mine:
 - [thermometer](#thermometer)
 - [thermostat](#thermostat)
 - [garage](#garage)
+- [kodi](#kodi)
 
 To build a specific project (aka "board"):
 
@@ -26,10 +27,14 @@ Relvant discussions:
 
 ## thermometer
 
+Raspberry Pi Zero W
+
 Presents a HTTP api for a connected 1-wire thermometer (such as the DS18B20 or the MAX31820).
 See [this Google Doc][thermostat doc] for more information
 
 ## thermostat
+
+Raspberry Pi Zero W
 
 Presents a HTTP api to control a furnace (by driving two attached relays).
 See [this Google Doc][thermostat doc] for more information
@@ -38,6 +43,12 @@ See [this Google Doc][thermostat doc] for more information
 
 ## garage
 
+Raspberry Pi Zero W
+
 Presents a HTTP api to check and change the status of the garage door.
 
 Inspired by: https://www.hagensieker.com/wordpress/2019/01/29/making-your-garage-door-smart/
+
+## kodi
+
+Raspberry PI 3B+

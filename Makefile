@@ -8,11 +8,16 @@ help:
 ifndef BOARD
 $(error BOARD must be defined)
 endif
-ifeq ($(wildcard boards/$(BOARD)/.),)
+
+ifeq ($(BOARD),kodi)
+OUTDIR=$(CURDIR)/out/$(BOARD)
+MAKE=make O=$(OUTDIR) -C kodi
+else ifeq ($(wildcard boards/$(BOARD)/.),)
 $(error BOARD '$(BOARD)' not found. Try one of: $(shell ls boards/))
-endif
+else
 OUTDIR=$(CURDIR)/out/$(BOARD)
 MAKE=make O=$(OUTDIR) -C buildroot
+endif
 
 .PHONY: configure
 configure:

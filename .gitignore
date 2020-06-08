@@ -6,3 +6,6 @@
 /out/*/.br2-external.*
 !/out/*/.br2-external.mk
 /out/*/..config.tmp
+
+*.pyc
+*.pyo
