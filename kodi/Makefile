@@ -29,3 +29,10 @@ all: build
 .PHONY: clean
 clean:
 	sudo rm -rf $(BUILDDIR)
+
+# Clobbers the ~/.kodi directory on the host computer and configures it for a
+# "fresh" setup. This is a decent approximation of setting up a fresh sdcard,
+# and a lot less work.
+.PHONY: test-local
+test-local: build
+	./test-local.sh
