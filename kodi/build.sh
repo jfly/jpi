@@ -35,7 +35,7 @@ sudo rsync -r overlay/root/ out/squashfs-root
 sudo rsync -r overlay/storage/ out/storage
 # "Install" parsec
 (
-    rm -r out/parsecing
+    rm -rf out/parsecing
     mkdir -p out/parsecing
     cd out/parsecing
     wget https://s3.amazonaws.com/parsec-build/package/parsec-rpi.deb
