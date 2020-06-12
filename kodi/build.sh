@@ -42,6 +42,16 @@ sudo rsync -r overlay/storage/ out/storage
     ar xv parsec-rpi.deb
     sudo tar xf data.tar.xz -C ../squashfs-root
 )
+## Install some kodi plugins.
+## If you add a new plugin, don't forget to add it to the list of addons to
+## enable in overlay/storage/.kodi/userdata/autoexec.py!
+function add_plugin() {
+    wget -O out/addon.zip "$1"
+    sudo unzip out/addon.zip -d out/storage/.kodi/addons
+}
+# Opensubtitles.org
+add_plugin "https://github.com/opensubtitles/service.subtitles.opensubtitles_by_opensubtitles/archive/master.zip"
+
 # Do some janky templating to handle secrets.
 source <(scp clark:/mnt/media/.build-secrets/jpi-kodi.secrets /dev/stdout)
 sudo sed -i "s/{{ MYSQL_USERNAME }}/${MYSQL_USERNAME}/g" out/storage/.kodi/userdata/advancedsettings.xml
