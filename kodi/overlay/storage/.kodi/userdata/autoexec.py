@@ -5,8 +5,13 @@ import xbmc
 
 # Enable the plugins we know we've installed.
 # TODO: Looks like we might be able to switch to this in v19 (https://kodi.wiki/view/List_of_built-in_functions#Add-on_built-in.27s): xbmc.executebuiltin('EnableAddon("script.parsec")')
-addons = ["script.parsec", "service.autoreceiver", "service.subtitles.opensubtitles_by_opensubtitles"]
-for addon in addons:
+addons_to_enable = [
+    "script.parsec",
+    "service.autoreceiver",
+    "service.subtitles.opensubtitles_by_opensubtitles",
+    "script.tubecast",
+]
+for addon in addons_to_enable:
     cmd_json = {
         "jsonrpc": "2.0",
         "id": "insideautoexec",
@@ -17,3 +22,9 @@ for addon in addons:
         },
     }
     xbmc.executeJSONRPC(json.dumps(cmd_json))
+
+addons_to_install = [
+    "script.tubecast",
+]
+for addon in addons_to_install:
+    xbmc.executebuiltin("InstallAddon({})".format(addon))

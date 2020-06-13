@@ -24,6 +24,8 @@ sudo rm -rf out/squashfs-root out/SYSTEM out/SYSTEM.md5
 sudo unsquashfs -d out/squashfs-root out/mnt/SYSTEM
 
 ### Make some tweaks to the filesystem.
+# Load secrets into variables.
+source <(scp clark:/mnt/media/.build-secrets/jpi-kodi.secrets /dev/stdout)
 # Enable SSH
 echo "boot=UUID=0303-2219 disk=UUID=535ef1f2-87b8-43f9-ad36-036077bb50d3 quiet ssh" | sudo tee out/mnt/cmdline.txt
 # Enable aplay audio devices (kodi doesn't seem to need this, but parsec does)
@@ -42,7 +44,7 @@ sudo rsync -r overlay/storage/ out/storage
     ar xv parsec-rpi.deb
     sudo tar xf data.tar.xz -C ../squashfs-root
 )
-## Install some kodi plugins.
+## Install/configure some kodi plugins.
 ## If you add a new plugin, don't forget to add it to the list of addons to
 ## enable in overlay/storage/.kodi/userdata/autoexec.py!
 function add_plugin() {
@@ -51,9 +53,14 @@ function add_plugin() {
 }
 # Opensubtitles.org
 add_plugin "https://github.com/opensubtitles/service.subtitles.opensubtitles_by_opensubtitles/archive/master.zip"
+# TubeCast
+# (installation is in autoexec.py, because there are a bunch of dependencies
+# that make installing by extracting a zip not a good option =()
+sudo sed -i "s/{{ YOUTUBE_API_KEY }}/${YOUTUBE_API_KEY}/g" out/storage/.kodi/userdata/addon_data/plugin.video.youtube/api_keys.json
+sudo sed -i "s/{{ YOUTUBE_CLIENT_ID }}/${YOUTUBE_CLIENT_ID}/g" out/storage/.kodi/userdata/addon_data/plugin.video.youtube/api_keys.json
+sudo sed -i "s/{{ YOUTUBE_CLIENT_SECRET }}/${YOUTUBE_CLIENT_SECRET}/g" out/storage/.kodi/userdata/addon_data/plugin.video.youtube/api_keys.json
 
 # Do some janky templating to handle secrets.
-source <(scp clark:/mnt/media/.build-secrets/jpi-kodi.secrets /dev/stdout)
 sudo sed -i "s/{{ MYSQL_USERNAME }}/${MYSQL_USERNAME}/g" out/storage/.kodi/userdata/advancedsettings.xml
 sudo sed -i "s/{{ MYSQL_PASSWORD }}/${MYSQL_PASSWORD}/g" out/storage/.kodi/userdata/advancedsettings.xml
 echo "$PARSEC_USER_BIN_BASE64" | base64 --decode | sudo tee out/storage/.parsec/user.bin
