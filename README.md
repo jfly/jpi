@@ -52,3 +52,7 @@ Inspired by: https://www.hagensieker.com/wordpress/2019/01/29/making-your-garage
 ## kodi
 
 Raspberry PI 3B+
+
+See [this Google Doc][kodi doc] for more information.
+
+[kodi doc]: https://docs.google.com/document/d/1LtwhNzlWBPv61b5ysdFDaDuw3bote0nc9ObSiC2ZJ7s/
