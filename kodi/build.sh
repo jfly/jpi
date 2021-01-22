@@ -5,7 +5,7 @@
 
 set -e
 
-cp out/LibreELEC-RPi2.arm-9.2.1.img out/LibreELEC-jpi-wip.img
+cp "out/${SOURCE_BASENAME}" out/LibreELEC-jpi-wip.img
 loopback_device=$(sudo losetup -P -f --show out/LibreELEC-jpi-wip.img)
 sudo mkdir -p out/mnt
 sudo mount "${loopback_device}p1" out/mnt
@@ -26,8 +26,8 @@ sudo unsquashfs -d out/squashfs-root out/mnt/SYSTEM
 ### Make some tweaks to the filesystem.
 # Load secrets into variables.
 source <(scp clark:/mnt/media/.build-secrets/jpi-kodi.secrets /dev/stdout)
-# Enable SSH
-echo "boot=UUID=0303-2219 disk=UUID=535ef1f2-87b8-43f9-ad36-036077bb50d3 quiet ssh" | sudo tee out/mnt/cmdline.txt
+# Enable SSH (add "ssh" to the end of the line)
+sudo gawk -i inplace '{print $0" ssh"}' out/mnt/cmdline.txt
 # Enable aplay audio devices (kodi doesn't seem to need this, but parsec does)
 # See https://github.com/bite-your-idols/Gamestarter/issues/39 for more information.
 sudo bash -c 'echo "dtparam=audio=on" >> out/mnt/config.txt'
