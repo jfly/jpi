@@ -9,7 +9,6 @@ addons_to_enable = [
     "script.parsec",
     "service.autoreceiver",
     "service.subtitles.opensubtitles_by_opensubtitles",
-    "script.tubecast",
 ]
 for addon in addons_to_enable:
     cmd_json = {
@@ -25,6 +24,9 @@ for addon in addons_to_enable:
 
 addons_to_install = [
     "script.tubecast",
+    "game.libretro.snes9x",
+    "game.libretro.atari800",
+    "game.controller.atari.5200",
 ]
 for addon in addons_to_install:
     xbmc.executebuiltin("InstallAddon({})".format(addon))

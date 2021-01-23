@@ -1,6 +1,7 @@
-import time
-import xbmc
 import subprocess
+import time
+
+import xbmc
 
 # Service that will detect when audio or video start playing, and turn on the reciever/tv as appropriate.
 # Basic idea from https://discourse.osmc.tv/t/turn-tv-on-cec-when-playing-a-video-solved/7446/5

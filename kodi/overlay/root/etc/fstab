@@ -1,0 +1,8 @@
+# We're mounting the NFS share via fstab here because if you load roms over
+# kodi's builtin NFS functionality, it cannot create save files for some
+# reason.
+# See investigation here:
+# https://docs.google.com/document/d/1LtwhNzlWBPv61b5ysdFDaDuw3bote0nc9ObSiC2ZJ7s/edit#bookmark=id.obh0kbd4xx7h
+
+# <file system>     <dir>       <type>   <options>   <dump>	<pass>
+clark:/             /mnt/media  nfs4     defaults    0      0
