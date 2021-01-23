@@ -3,6 +3,9 @@
 # reason.
 # See investigation here:
 # https://docs.google.com/document/d/1LtwhNzlWBPv61b5ysdFDaDuw3bote0nc9ObSiC2ZJ7s/edit#bookmark=id.obh0kbd4xx7h
+# Note: 'defaults' doesn't work on LibreELEC for some reason. The auto and
+# nouser parts of it don't seem to be supported, so I manually built the list
+# below of the defaults minus those two options.
 
-# <file system>     <dir>       <type>   <options>   <dump>	<pass>
-clark:/             /mnt/media  nfs4     defaults    0      0
+# <file system>     <dir>       <type>   <options>              <dump> <pass>
+clark:/             /mnt/media  nfs4     rw,suid,dev,exec,async 0      0
