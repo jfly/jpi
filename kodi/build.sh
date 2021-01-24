@@ -31,10 +31,10 @@ sudo gawk -i inplace '{print $0" ssh"}' out/mnt/cmdline.txt
 # Enable aplay audio devices (kodi doesn't seem to need this, but parsec does)
 # See https://github.com/bite-your-idols/Gamestarter/issues/39 for more information.
 sudo bash -c 'echo "dtparam=audio=on" >> out/mnt/config.txt'
-sudo rsync -r overlay/root/ out/squashfs-root
+sudo rsync -r --links overlay/root/ out/squashfs-root
 # Copy files onto the /storage (aka "home") directory (it's a completely
 # separate partition).
-sudo rsync -r overlay/storage/ out/storage
+sudo rsync -r --links overlay/storage/ out/storage
 # "Install" parsec
 (
     rm -rf out/parsecing
