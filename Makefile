@@ -9,7 +9,10 @@ ifndef BOARD
 $(error BOARD must be defined)
 endif
 
-ifeq ($(BOARD),kodi)
+ifeq ($(BOARD),basic)
+OUTDIR=$(CURDIR)/out/$(BOARD)
+MAKE=make O=$(OUTDIR) -C basic
+else ifeq ($(BOARD),kodi)
 OUTDIR=$(CURDIR)/out/$(BOARD)
 MAKE=make O=$(OUTDIR) -C kodi
 else ifeq ($(wildcard boards/$(BOARD)/.),)

@@ -12,7 +12,7 @@ $(BUILDDIR):
 # Download source image if it does not exist.
 $(SOURCE_IMAGE): $(BUILDDIR)
 	@if [ ! -f $(SOURCE_IMAGE) ]; then \
-		wget http://releases.libreelec.tv/$(SOURCE_BASENAME) http://archive.libreelec.tv/$(SOURCE_BASENAME) -O $(SOURCE_IMAGE).gz; \
+		wget http://releases.libreelec.tv/$(SOURCE_BASENAME) -O $(SOURCE_IMAGE).gz; \
 		gunzip $(SOURCE_IMAGE).gz; \
 	fi
 

@@ -12,6 +12,16 @@ To build a specific project (aka "board"):
 
     BOARD=thermostat make build
 
+## basic
+
+All Raspberry Pi models
+
+A basic raspbian lite image set up to connect to the snowdon wifi with ssh
+enabled with the current user's keys added. To connect:
+
+    ssh pi@raspberrypi
+
+
 ## hidproxy
 
 Connects via bluetooth to HID devices, and exposes itself as a USB HID device.
@@ -51,7 +61,7 @@ Inspired by: https://www.hagensieker.com/wordpress/2019/01/29/making-your-garage
 
 ## kodi
 
-Raspberry PI 3B+
+Raspberry Pi 3B+
 
 See [this Google Doc][kodi doc] for more information.
 
