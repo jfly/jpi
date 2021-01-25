@@ -12,7 +12,7 @@ To build a specific project (aka "board"):
 
     BOARD=thermostat make build
 
-## basic
+## basic-raspbian
 
 All Raspberry Pi models
 
