@@ -2,8 +2,9 @@
 
 BUILDDIR=out
 
-SOURCE_BASENAME=LibreELEC-RPi2.arm-9.2.6.img
-SOURCE_IMAGE=$(BUILDDIR)/$(SOURCE_BASENAME)
+SOURCE_URL=http://releases.libreelec.tv/LibreELEC-RPi2.arm-9.2.6.img.gz
+SOURCE_NOTDIR=$(notdir $(SOURCE_URL))
+SOURCE_IMAGE=$(BUILDDIR)/$(SOURCE_NOTDIR)
 RESULT_IMAGE=$(BUILDDIR)/LibreELEC-jpi.img
 
 $(BUILDDIR):
@@ -12,12 +13,12 @@ $(BUILDDIR):
 # Download source image if it does not exist.
 $(SOURCE_IMAGE): $(BUILDDIR)
 	@if [ ! -f $(SOURCE_IMAGE) ]; then \
-		wget http://releases.libreelec.tv/$(SOURCE_BASENAME) -O $(SOURCE_IMAGE).gz; \
+		wget $(SOURCE_URL) -O $(SOURCE_IMAGE).gz; \
 		gunzip $(SOURCE_IMAGE).gz; \
 	fi
 
 $(RESULT_IMAGE): build.sh $(SOURCE_IMAGE)
-	SOURCE_BASENAME=$(SOURCE_BASENAME) ./build.sh
+	SOURCE_IMAGE=$(SOURCE_IMAGE) ./build.sh
 
 .PHONY: build
 build: $(RESULT_IMAGE)

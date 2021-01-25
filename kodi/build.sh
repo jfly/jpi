@@ -5,7 +5,7 @@
 
 set -e
 
-cp "out/${SOURCE_BASENAME}" out/LibreELEC-jpi-wip.img
+cp "${SOURCE_IMAGE}" out/LibreELEC-jpi-wip.img
 loopback_device=$(sudo losetup -P -f --show out/LibreELEC-jpi-wip.img)
 sudo mkdir -p out/mnt
 sudo mount "${loopback_device}p1" out/mnt
@@ -35,6 +35,10 @@ sudo rsync -r --links overlay/root/ out/squashfs-root
 # Copy files onto the /storage (aka "home") directory (it's a completely
 # separate partition).
 sudo rsync -r --links overlay/storage/ out/storage
+# Copy the bluetooth configuration. (This isn't committed to git because it
+# contains secret link keys.)
+rsync -r clark:/mnt/media/.build-secrets/jpi-kodi-bluetooth /tmp/
+sudo mv /tmp/jpi-kodi-bluetooth out/storage/.cache/bluetooth
 # "Install" parsec
 (
     rm -rf out/parsecing
