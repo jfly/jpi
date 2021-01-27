@@ -21,6 +21,29 @@ enabled with the current user's keys added. To connect:
 
     ssh pi@raspberrypi
 
+## basic-arch
+
+Rasperry Pi 4
+
+A basic arch arm image. To connect:
+
+    ssh root@alarmpi
+
+Once connected, initialize the pacman keyring and populate the Arch Linux ARM
+package signing keys (step 10 of
+https://archlinuxarm.org/platforms/armv8/broadcom/raspberry-pi-4):
+
+    pacman-key --init
+    pacman-key --populate archlinuxarm
+
+Note: After connecting, consider installing `sudo` and disabling root access in favor
+of using the `alarm` user.
+
+    pacman -Syuu
+    pacman -S sudo
+    visudo  # uncomment relevant line near the bottom, depending on what kind of sudo you want
+    vi /etc/ssh/sshd_config  # change 'PermitRootLogin without-password' to 'PermitRootLogin no'
+    systemctl restart sshd  # to load the updated sshd configuration
 
 ## hidproxy
 

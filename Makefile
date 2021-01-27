@@ -9,9 +9,12 @@ ifndef BOARD
 $(error BOARD must be defined)
 endif
 
-ifeq ($(BOARD),basic)
+ifeq ($(BOARD),basic-arch)
 OUTDIR=$(CURDIR)/out/$(BOARD)
-MAKE=make O=$(OUTDIR) -C basic
+MAKE=make O=$(OUTDIR) -C basic-arch
+else ifeq ($(BOARD),basic-raspbian)
+OUTDIR=$(CURDIR)/out/$(BOARD)
+MAKE=make O=$(OUTDIR) -C basic-raspbian
 else ifeq ($(BOARD),kodi)
 OUTDIR=$(CURDIR)/out/$(BOARD)
 MAKE=make O=$(OUTDIR) -C kodi
@@ -38,10 +41,28 @@ build:
 clean:
 	$(MAKE) clean
 
+DEVICE_PATH=/dev/$(USB_DRIVE)
 .PHONY: sdcard
-sdcard:
-	lsblk
-	@echo ""
-	@echo "For now, I'm too cowardly to actually do this for you."
-	@echo "Pick a device above (something like /dev/sdX),"
-	@echo "and then run 'sudo dd bs=4M if=$(OUTDIR)/images/sdcard.img of=/dev/sdX status=progress conv=fsync'"
+sdcard: build
+	@if [ ! -b $(DEVICE_PATH) ]; then \
+		echo ""; \
+		echo "$(DEVICE_PATH) not found or not a block device! Aborting."; \
+		echo "Pick something from this list: "; \
+		lsblk; \
+		exit 1; \
+	fi
+	@device_re="^mmc.*"; \
+	if [[ ! $(USB_DRIVE) =~ $$device_re ]]; then \
+		echo "$(DEVICE_PATH) does not match this regex: $$device_re."; \
+		echo ""; \
+		echo "I'm cowardly refusing to flash this drive."; \
+		exit 2; \
+	fi
+	@echo "Flashing..."
+	@sudo dd bs=4M if=$(OUTDIR)/images/sdcard.img of=$(DEVICE_PATH) status=progress conv=fsync
+	@echo "Success!"
+	@echo "Resizing the last partition to occupy the full space..."
+	sudo parted -s $(DEVICE_PATH) "resizepart 2 -1" quit
+	sudo fsck -f $(DEVICE_PATH)p2
+	sudo resize2fs $(DEVICE_PATH)p2
+	@echo "Success!"
