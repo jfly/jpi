@@ -8,13 +8,12 @@ Buildroot configurations for miscellaneous Raspberry Pi projects of mine:
 - [garage](#garage)
 - [kodi](#kodi)
 
-To build a specific project (aka "board"):
-
-    BOARD=thermostat make build
 
 ## basic-raspbian
 
 All Raspberry Pi models
+
+    BOARD=basic-raspbian make sdcard
 
 A basic raspbian lite image set up to connect to the snowdon wifi with ssh
 enabled with the current user's keys added. To connect:
@@ -24,6 +23,8 @@ enabled with the current user's keys added. To connect:
 ## basic-arch
 
 Rasperry Pi 4
+
+    BOARD=basic-arch make sdcard
 
 A basic arch arm image. To connect:
 
@@ -47,6 +48,11 @@ of using the `alarm` user.
 
 ## hidproxy
 
+Raspberry Pi Zero W
+
+    BOARD=hidproxy make sdcard
+
+WIP WIP WIP
 Connects via bluetooth to HID devices, and exposes itself as a USB HID device.
 This is useful when dual-booting, or if you want to set up a hub that any
 computer can plug into and have devices just work.
@@ -62,12 +68,16 @@ Relvant discussions:
 
 Raspberry Pi Zero W
 
+    BOARD=thermometer make sdcard
+
 Presents a HTTP api for a connected 1-wire thermometer (such as the DS18B20 or the MAX31820).
 See [this Google Doc][thermostat doc] for more information
 
 ## thermostat
 
 Raspberry Pi Zero W
+
+    BOARD=thermostat make sdcard
 
 Presents a HTTP api to control a furnace (by driving two attached relays).
 See [this Google Doc][thermostat doc] for more information
@@ -78,6 +88,8 @@ See [this Google Doc][thermostat doc] for more information
 
 Raspberry Pi Zero W
 
+    BOARD=garage make sdcard
+
 Presents a HTTP api to check and change the status of the garage door.
 
 Inspired by: https://www.hagensieker.com/wordpress/2019/01/29/making-your-garage-door-smart/
@@ -85,6 +97,8 @@ Inspired by: https://www.hagensieker.com/wordpress/2019/01/29/making-your-garage
 ## kodi
 
 Raspberry Pi 3B+
+
+    BOARD=kodi make sdcard
 
 See [this Google Doc][kodi doc] for more information.
 
