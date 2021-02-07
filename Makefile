@@ -44,6 +44,13 @@ clean:
 DEVICE_PATH=/dev/$(USB_DRIVE)
 .PHONY: sdcard
 sdcard: build
+	@if [ "$(USB_DRIVE)" = "" ]; then \
+		echo ""; \
+		echo "You must specify USB_DRIVE."; \
+		echo "Pick something from this list: "; \
+		lsblk; \
+		exit 1; \
+	fi
 	@if [ ! -b $(DEVICE_PATH) ]; then \
 		echo ""; \
 		echo "$(DEVICE_PATH) not found or not a block device! Aborting."; \
