@@ -46,8 +46,8 @@ of using the `alarm` user.
     pacman -Syuu
     pacman -S sudo
     visudo  # uncomment relevant line near the bottom, depending on what kind of sudo you want
-    vi /etc/ssh/sshd_config  # change 'PermitRootLogin without-password' to 'PermitRootLogin no'
-    systemctl restart sshd  # to load the updated sshd configuration
+    vi /etc/ssh/sshd_config  # change 'PermitRootLogin without-password' (near the bottom) to 'PermitRootLogin no'
+    systemctl restart sshd  # to load the updated sshd configuration (or consider rebooting if the previous step installed a kernel update)
 
 ## hidproxy
 
