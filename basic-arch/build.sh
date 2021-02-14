@@ -12,12 +12,12 @@ ROOT_PARTITION_MB=1536
 dd if=/dev/zero of=out/archarm-jpi-wip.img bs=1M count=$((1 + BOOT_PARTITION_MB + ROOT_PARTITION_MB))
 echo "label: dos
 label-id: 0x72147d4e
-device: kodi/out/LibreELEC-jpi.img
+device: out/archarm-jpi-wip.img
 unit: sectors
 sector-size: 512
 
-kodi/out/LibreELEC-jpi.img1 : start=1MiB,                          size=${BOOT_PARTITION_MB}MiB, type=c, bootable
-kodi/out/LibreELEC-jpi.img2 : start=$((1 + BOOT_PARTITION_MB))MiB, size=${ROOT_PARTITION_MB}MiB, type=83" | sfdisk out/archarm-jpi-wip.img
+out/archarm-jpi-wip.img1 : start=1MiB,                          size=${BOOT_PARTITION_MB}MiB, type=c, bootable
+out/archarm-jpi-wip.img2 : start=$((1 + BOOT_PARTITION_MB))MiB, size=${ROOT_PARTITION_MB}MiB, type=83" | sfdisk out/archarm-jpi-wip.img
 
 loopback_device=$(sudo losetup -P -f --show out/archarm-jpi-wip.img)
 # Format the boot partition.
@@ -124,6 +124,14 @@ ExecStop=/usr/lib/netctl/network stop %I
     cd out/root/etc/systemd/system/multi-user.target.wants/;
     sudo ln -s ../../../../usr/lib/systemd/system/netctl\@.service 'netctl@wlan0\x2dsnowdon.service';
 )
+
+# From https://archlinuxarm.org/platforms/armv8/broadcom/raspberry-pi-4#aarch64installation
+#
+#  > Before unmounting the partitions, update /etc/fstab for the different SD
+#  > block device compared to the Raspberry Pi 3:
+#
+# I guess that means the image we're using is actually for a Raspberry Pi 3?
+sudo sed -i 's/mmcblk0/mmcblk1/g' out/root/etc/fstab
 
 # Rename image to indicate that it's done!
 mv out/archarm-jpi-wip.img out/archarm-jpi.img

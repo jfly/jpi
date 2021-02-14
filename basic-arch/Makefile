@@ -2,7 +2,7 @@
 
 BUILDDIR=out
 
-SOURCE_URL=http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-4-latest.tar.gz
+SOURCE_URL=http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz
 SOURCE_NOTDIR=$(notdir $(SOURCE_URL))
 SOURCE_TARZIP=$(BUILDDIR)/$(SOURCE_NOTDIR)
 RESULT_IMAGE=$(BUILDDIR)/archarm-jpi.img
