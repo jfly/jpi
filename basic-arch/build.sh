@@ -95,7 +95,7 @@ Key='$WIFI_PASSWORD'
 # dhcpcd. The -L comes from the default options, and I've added in the
 # --hostname. See http://www.sigexec.com/posts/netctl-undocumented-features/
 # for some details.
-DhcpcdOptions='-L --hostname=$HOSTNAME'
+DhcpcdOptions='-L --hostname'
 " | sudo tee out/root/etc/netctl/wlan0-snowdon
 # Connect to wifi on boot.
 # This was created by following the output of `netctl enable wlan0-snowdon` on
