@@ -133,5 +133,15 @@ ExecStop=/usr/lib/netctl/network stop %I
 # I guess that means the image we're using is actually for a Raspberry Pi 3?
 sudo sed -i 's/mmcblk0/mmcblk1/g' out/root/etc/fstab
 
+# Mark the eth interfact as not managed by systemd-networkd. You can see the
+# affect of this in `networkctl list`
+# The reason to mark this unamanaged is to speed up boot. Without this change,
+# `systemd-networkd-wait-online.service` takes 2 minutes to time out (check
+# `sudo systemctl status systemd-networkd-wait-online.service` after boot).
+# With this change,
+# `SYSTEMD_LOG_LEVEL=debug /usr/lib/systemd/systemd-networkd-wait-online --timeout=5` instead succeeds quickly.
+sudo bash -c "printf '\n[Link]
+Unmanaged=yes\n' >> out/root/etc/systemd/network/eth.network"
+
 # Rename image to indicate that it's done!
 mv out/archarm-jpi-wip.img out/archarm-jpi.img
