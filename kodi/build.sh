@@ -32,6 +32,9 @@ sudo gawk -i inplace '{print $0" ssh"}' out/mnt/cmdline.txt
 # See https://github.com/bite-your-idols/Gamestarter/issues/39 for more information.
 sudo bash -c 'echo "dtparam=audio=on" >> out/mnt/config.txt'
 sudo rsync -r --links overlay/root/ out/squashfs-root
+# Needed to get Pulseaudio to recognize our various output devices.
+# Sort of from https://wiki.libreelec.tv/configuration/pulseaudio?
+sudo bash -c 'echo "load-module module-udev-detect" >> out/squashfs-root/etc/pulse/system.pa'
 # Copy files onto the /storage (aka "home") directory (it's a completely
 # separate partition).
 sudo rsync -r --links overlay/storage/ out/storage
