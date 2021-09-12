@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 if [ $# -lt 1 ]; then
   echo "USAGE: `basename $0` OUTPUTDEVICE"
   exit 1

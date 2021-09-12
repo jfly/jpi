@@ -20,12 +20,12 @@ def main():
 class Player(xbmc.Player):
     def onAVStarted(self):
         if self.isPlayingVideo():
-            xbmc.log("Looks like you just started playing a video. Attemping to turn on the tv and the receiver", le
-            out = subprocess.check_output("/storage/tv-on.sh")
+            xbmc.log("Looks like you just started playing a video. Attempting to turn on the tv and the receiver", level=xbmc.LOGNOTICE)
+            out = subprocess.check_output("/storage/tv-on.sh", stderr=subprocess.STDOUT)
             xbmc.log("Here's how that went: %s" % out, level=xbmc.LOGNOTICE)
         else:
-            xbmc.log("Looks like you just started playing audio (no video). Attemping to turn on just the receiver",
-            out = subprocess.check_output("/storage/receiver-on.sh")
+            xbmc.log("Looks like you just started playing audio (no video). Attempting to turn on just the receiver", level=xbmc.LOGNOTICE)
+            out = subprocess.check_output("/storage/receiver-on.sh", stderr=subprocess.STDOUT)
             xbmc.log("Here's how that went: %s" % out, level=xbmc.LOGNOTICE)
 
 if __name__ == '__main__':

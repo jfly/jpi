@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 # Check if bose headphones are connected. If so, switch to pulseaudio. If not, switch to HDMI.
 if bluetoothctl info 28:11:A5:36:83:33 | grep "Connected: yes" > /dev/null; then
   echo "Detected connected headphones"
