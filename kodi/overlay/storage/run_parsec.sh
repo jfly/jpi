@@ -12,6 +12,8 @@ systemctl stop kodi
 # parsecd relies upon these environment variables to look up its configuration.
 # When run via systemd-run, these environment variables aren't set, so we have
 # to hackily set them here.
-USER=root LOGNAME=root HOME=/storage /usr/bin/parsecd "$PARSEC_SETTINGS"
+# Note that we don't care if parsec exits with an error, we still want to start
+# kodi after it exits.
+USER=root LOGNAME=root HOME=/storage /usr/bin/parsecd "$PARSEC_SETTINGS" || true
 
 systemctl start kodi
