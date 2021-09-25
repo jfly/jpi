@@ -41,6 +41,14 @@ build:
 clean:
 	$(MAKE) clean
 
+.PHONY: %-menuconfig
+%-menuconfig:
+	$(MAKE) $@
+
+.PHONY: %-update-config
+%-update-config:
+	$(MAKE) $@
+
 DEVICE_PATH=/dev/$(USB_DRIVE)
 .PHONY: sdcard
 sdcard: build
