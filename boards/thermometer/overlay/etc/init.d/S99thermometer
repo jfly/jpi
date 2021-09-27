@@ -1,23 +1,21 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Starts thermometer server.
 #
 
-# TODO: Figure out how to get this to work with plain sh someday?
-# https://www.urbanautomaton.com/blog/2014/09/09/redirecting-bash-script-output-to-syslog/
-exec 1> >(exec logger -s -t thermometer.server) 2>&1
-
 start() {
     printf "Starting thermometer server: "
 
-    start-stop-daemon -S -q -p /var/run/thermometer.pid \
-        --exec /usr/sbin/thermometer.py
+    start-stop-daemon -S -q \
+        --make-pidfile --pidfile /var/run/thermometer.pid \
+        --exec /usr/sbin/logall thermometer.server /usr/sbin/thermometer.py \
+        --background
     [ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 
 stop() {
     printf "Stopping thermometer server: "
-    start-stop-daemon -K -q -p /var/run/thermometer.pid
+    start-stop-daemon -K -q --pidfile /var/run/thermometer.pid
     [ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 

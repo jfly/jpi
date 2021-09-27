@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ $# -lt 2 ]; then
+    echo "Usage: $0 label command" >/dev/stderr
+    echo >/dev/stderr
+    echo "Run the given command, but also direct all" >/dev/stderr
+    echo "stderr and stdout to syslog tagged with the given label." >/dev/stderr
+    exit 1
+fi
+
+label="$1"
+shift
+
+# TODO: Figure out how to get this to work with plain sh someday?
+# https://www.urbanautomaton.com/blog/2014/09/09/redirecting-bash-script-output-to-syslog/
+exec 1> >(exec logger -s -t "$label") 2>&1
+
+"$@"
