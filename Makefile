@@ -41,6 +41,10 @@ build:
 clean:
 	$(MAKE) clean
 
+.PHONY: menuconfig
+menuconfig:
+	$(MAKE) $@
+
 .PHONY: %-menuconfig
 %-menuconfig:
 	$(MAKE) $@

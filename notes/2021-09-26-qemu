@@ -1,0 +1,11 @@
+https://stackoverflow.com/questions/60127086/run-raspberry-pi-zero-w-image-in-qemu
+
+    cd ~/thirdrepos
+    git clone git@github.com:igwtech/qemu.git
+    cd qemu
+    ./configure
+    make
+
+    ./arm-softmmu/qemu-system-arm -machine raspi0 -serial stdio -dtb bcm2708-rpi-zero-w.dtb -kernel kernel.img -append 'printk.time=0 earlycon=pl011,0x20201000 console=ttyAMA0'
+
+    https://petermalmgren.com/qemu-buildroot/ looks useful...
