@@ -2,8 +2,8 @@
 
 import glob
 import json
-import socket
 import os.path
+import socket
 import traceback
 
 # Copied (and modified) from
@@ -11,11 +11,10 @@ import traceback
 
 def get_temperatures_celsius():
     temperature_by_name = {}
-    for temperature_file in glob.glob("/sys/class/hwmon/hwmon*/temp1_input"):
-        device_name_file = os.path.join(os.path.dirname(temperature_file), "device/name")
-        with open(temperature_file, "r") as f_temp, open(device_name_file, "r") as f_name:
+    for temperature_file in glob.glob("/sys/bus/w1/devices/*/temperature"):
+        name = os.path.basename(os.path.dirname(temperature_file))
+        with open(temperature_file, "r", encoding="utf-8") as f_temp:
             temperature_str = f_temp.read().strip()
-            name = f_name.read().strip()
         temperature_celsius = int(temperature_str)/1000
         temperature_by_name[name] = temperature_celsius
 
