@@ -1,22 +1,21 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Starts garage server.
 #
 
-# TODO: Figure out how to get this to work with plain sh someday?
-# https://www.urbanautomaton.com/blog/2014/09/09/redirecting-bash-script-output-to-syslog/
-exec 1> >(exec logger -s -t garage.server) 2>&1
-
 start() {
     printf "Starting garage server: "
 
-    start-stop-daemon -S -q -p /var/run/garage.pid --exec /usr/sbin/server.py
+    start-stop-daemon -S -q \
+        --make-pidfile --pidfile /var/run/garage.pid \
+        --exec /usr/sbin/logall garage.server /usr/sbin/server.py \
+        --background
     [ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 
 stop() {
     printf "Stopping garage server: "
-    start-stop-daemon -K -q -p /var/run/garage.pid
+    start-stop-daemon -K -q --pidfile /var/run/garage.pid
     [ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 
