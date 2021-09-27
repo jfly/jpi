@@ -11,7 +11,7 @@ fi
 label="$1"
 shift
 
-# TODO: Figure out how to get this to work with plain sh someday?
+# This magic is copied from
 # https://www.urbanautomaton.com/blog/2014/09/09/redirecting-bash-script-output-to-syslog/
 exec 1> >(exec logger -s -t "$label") 2>&1
 
