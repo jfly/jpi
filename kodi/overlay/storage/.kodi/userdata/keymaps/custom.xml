@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<keymap>
-  <global>
-    <joystick profile="game.controller.default">
-      <start>RunScript(script.parsec)</start>
-    </joystick>
-  </global>
-</keymap>

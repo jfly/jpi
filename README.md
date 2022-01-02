@@ -7,7 +7,6 @@ of mine:
 - [thermometer](#thermometer)
 - [thermostat](#thermostat)
 - [garage](#garage)
-- [kodi](#kodi)
 
 
 ## basic-raspbian
@@ -97,13 +96,3 @@ Raspberry Pi Zero W
 Presents a HTTP api to check and change the status of the garage door.
 
 Inspired by: https://www.hagensieker.com/wordpress/2019/01/29/making-your-garage-door-smart/
-
-## kodi
-
-Raspberry Pi 3B+
-
-    BOARD=kodi make sdcard
-
-See [this Google Doc][kodi doc] for more information.
-
-[kodi doc]: https://docs.google.com/document/d/1LtwhNzlWBPv61b5ysdFDaDuw3bote0nc9ObSiC2ZJ7s/

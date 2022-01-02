@@ -15,9 +15,6 @@ MAKE=make O=$(OUTDIR) -C basic-arch
 else ifeq ($(BOARD),basic-raspbian)
 OUTDIR=$(CURDIR)/out/$(BOARD)
 MAKE=make O=$(OUTDIR) -C basic-raspbian
-else ifeq ($(BOARD),kodi)
-OUTDIR=$(CURDIR)/out/$(BOARD)
-MAKE=make O=$(OUTDIR) -C kodi
 else ifeq ($(wildcard boards/$(BOARD)/.),)
 $(error BOARD '$(BOARD)' not found. Try one of: $(shell ls boards/))
 else
