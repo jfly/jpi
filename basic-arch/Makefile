@@ -5,7 +5,13 @@ BUILDDIR=out
 SOURCE_URL=http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz
 SOURCE_NOTDIR=$(notdir $(SOURCE_URL))
 SOURCE_TARZIP=$(BUILDDIR)/$(SOURCE_NOTDIR)
-RESULT_IMAGE=$(BUILDDIR)/archarm-jpi.img
+RESULT_IMAGE=$(BUILDDIR)/$(BOARD).img
+
+ifeq (basic-arch-rpi4,$(BOARD))
+else ifeq (basic-arch-rpi3b+,$(BOARD))
+else
+$(error BOARD '$(BOARD)' not recognized.)
+endif
 
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
@@ -17,7 +23,7 @@ $(SOURCE_TARZIP): $(BUILDDIR)
 	fi
 
 $(RESULT_IMAGE): build.sh $(SOURCE_TARZIP)
-	SOURCE_TARZIP=$(SOURCE_TARZIP) ./build.sh
+	BOARD=$(BOARD) SOURCE_TARZIP=$(SOURCE_TARZIP) ./build.sh
 
 .PHONY: build
 build: $(RESULT_IMAGE)

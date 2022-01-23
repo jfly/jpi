@@ -9,9 +9,9 @@ ifndef BOARD
 $(error BOARD must be defined)
 endif
 
-ifeq ($(BOARD),basic-arch)
+ifneq (,$(findstring basic-arch-rpi,$(BOARD)))
 OUTDIR=$(CURDIR)/out/$(BOARD)
-MAKE=make O=$(OUTDIR) -C basic-arch
+MAKE=make O=$(OUTDIR) -C basic-arch BOARD=$(BOARD)
 else ifeq ($(BOARD),basic-raspbian)
 OUTDIR=$(CURDIR)/out/$(BOARD)
 MAKE=make O=$(OUTDIR) -C basic-raspbian

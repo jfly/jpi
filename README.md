@@ -20,12 +20,15 @@ enabled with the current user's keys added. To connect:
 
     ssh pi@raspberrypi
 
-## basic-arch
-
+## basic-arch-rpi*
 
 Rasperry Pi 4
 
-    BOARD=basic-arch make sdcard
+    BOARD=basic-arch-rpi4 make sdcard
+
+Raspberry Pi 3b+
+
+    BOARD=basic-arch-rpi3b+ make sdcard
 
 A basic arch arm image. To connect:
 

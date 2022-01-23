@@ -125,13 +125,20 @@ ExecStop=/usr/lib/netctl/network stop %I
     sudo ln -s ../../../../usr/lib/systemd/system/netctl\@.service 'netctl@wlan0\x2dsnowdon.service';
 )
 
-# From https://archlinuxarm.org/platforms/armv8/broadcom/raspberry-pi-4#aarch64installation
-#
-#  > Before unmounting the partitions, update /etc/fstab for the different SD
-#  > block device compared to the Raspberry Pi 3:
-#
-# I guess that means the image we're using is actually for a Raspberry Pi 3?
-sudo sed -i 's/mmcblk0/mmcblk1/g' out/root/etc/fstab
+if [ "basic-arch-rpi4" = "$BOARD" ]; then
+    # From https://archlinuxarm.org/platforms/armv8/broadcom/raspberry-pi-4#aarch64installation
+    #
+    #  > Before unmounting the partitions, update /etc/fstab for the different SD
+    #  > block device compared to the Raspberry Pi 3:
+    #
+    # I guess that means the image we're using is actually for a Raspberry Pi 3?
+    sudo sed -i 's/mmcblk0/mmcblk1/g' out/root/etc/fstab
+elif [ "basic-arch-rpi3b+" = "$BOARD" ]; then
+    : # Nothing needs to happen here!
+else
+    echo "Unrecognized board: $BOARD." >/dev/stderr
+    exit 1
+fi
 
 # Mark the eth interfact as not managed by systemd-networkd. You can see the
 # affect of this in `networkctl list`
@@ -144,4 +151,4 @@ sudo bash -c "printf '\n[Link]
 Unmanaged=yes\n' >> out/root/etc/systemd/network/eth.network"
 
 # Rename image to indicate that it's done!
-mv out/archarm-jpi-wip.img out/archarm-jpi.img
+mv out/archarm-jpi-wip.img out/$BOARD.img
