@@ -22,8 +22,6 @@ enabled with the current user's keys added. To connect:
 
 ## basic-arch
 
-NOTE: This is currently unable to connect to wifi because of
-      https://archlinuxarm.org/forum/viewtopic.php?f=15&t=15120
 
 Rasperry Pi 4
 
