@@ -119,6 +119,9 @@ NotifyAccess=exec
 RemainAfterExit=yes
 ExecStart=/usr/lib/netctl/network start %I
 ExecStop=/usr/lib/netctl/network stop %I
+# Copied from https://github.com/joukewitteveen/netctl/issues/164
+RestartForceExitStatus=1
+RestartSec=5
 " | sudo tee out/root/usr/lib/systemd/system/netctl@.service
 (
     cd out/root/etc/systemd/system/multi-user.target.wants/;
