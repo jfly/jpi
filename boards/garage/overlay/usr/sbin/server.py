@@ -80,7 +80,7 @@ app = Noggin()
 def toggle_garage(req):
     ''' Toggle the state of the garage door. '''
     GARAGE_DOOR_RELAY.on()
-    time.sleep(0.2)
+    time.sleep(1.0)
     GARAGE_DOOR_RELAY.off()
     return garage_status_json()
 
